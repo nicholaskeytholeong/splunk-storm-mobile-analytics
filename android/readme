@@ -1,1 +1,5 @@
-readme
+Steps to configure Android project in Eclipse
+1. Right click on the project (it should be "MainActivity")
+2. Click "Refactor"
+3. Click "Rename..." to rename it to "FuzzyApp" (check "Update references")
+4. You are set
