@@ -1,4 +1,4 @@
-Steps to configure Android project in Eclipse
+#Steps to configure Android project in Eclipse
 1. Create Android project from existing source code
 2. Open MessyApp directory
 3. Right click on the project (it should be "MainActivity")
