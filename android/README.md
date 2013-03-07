@@ -9,7 +9,7 @@ protected void onCreate(Bundle savedInstanceState) {
     SplunkStorm.connect("STORM_PROJECT_KEY", "STORM_ACCESS_TOKEN", getApplicationContext());
 ```
 
-- Add access internet permission between <manifest>...</manifest> element in the AndroidManifest.xml
+- Add access internet permission between the **"manifest"** element in the AndroidManifest.xml
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
