@@ -1,7 +1,8 @@
-#Steps to configure Android project in Eclipse
-1. Create Android project from existing source code
-2. Open MessyApp directory
-3. Right click on the project (it should be "MainActivity")
-4. Click "Refactor"
-5. Click "Rename..." to rename it to "MessyApp" (check "Update references")
-6. You are set
+#Steps to reference this logging library into Android app
+1. Create an Splunk Storm account
+2. Make a reference to splunkstormmobileanalytics.jar
+3. Connect to SplunkStorm in the main activity of the app
+4. Add access internet permission in the AndroidManifest.xml
+5. You are set
+6. Go to the Storm dashboard to perform crash analytics!
+7. Thank you for trying this logging library!
