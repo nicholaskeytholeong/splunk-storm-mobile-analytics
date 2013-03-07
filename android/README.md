@@ -2,12 +2,11 @@
 1. Create an Splunk Storm account
 2. Make a reference to splunkstormmobileanalytics.jar
 3. Connect to SplunkStorm in the main activity of the app
-
-    
+```java
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SplunkStorm.connect("STORM_PROJECT_KEY", "STORM_ACCESS_TOKEN", getApplicationContext());
-		
+```
 4. Add access internet permission in the AndroidManifest.xml
 
     
