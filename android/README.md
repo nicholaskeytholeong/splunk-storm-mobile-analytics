@@ -1,8 +1,20 @@
 #Steps to reference this logging library into Android app
-1. Create an Splunk Storm account
-2. Make a reference to splunkstormmobileanalytics.jar
-3. Connect to SplunkStorm in the main activity of the app
-4. Add access internet permission in the AndroidManifest.xml
-5. You are set
-6. Go to the Storm dashboard to perform crash analytics!
-7. Thank you for trying this logging library!
+- Create a Splunk Storm account
+- Make a reference to splunkstormmobileanalytics.jar
+- Connect to SplunkStorm in the main activity of the app
+
+```java
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    SplunkStorm.connect("STORM_PROJECT_KEY", "STORM_ACCESS_TOKEN", getApplicationContext());
+```
+
+- Add access internet permission between <manifest>...</manifest> element in the AndroidManifest.xml
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+- You are set
+- Go to the Storm dashboard to perform crash analytics!
+- Thank you for trying this logging library!
