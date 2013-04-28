@@ -1,7 +1,6 @@
 package com.storm.android;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.splunk.android.SplunkMessageHandler;
 
@@ -10,16 +9,17 @@ import com.splunk.android.SplunkMessageHandler;
  */
 public class Storm {
 
-    private static final String TAG = "StormLogger";
+    public static synchronized void connect(String projectId,
+            String accessToken, Context applicationContext) {
 
-    public static synchronized void connect(
-            String projectId, String accessToken, Context applicationContext) {
+        Thread.setDefaultUncaughtExceptionHandler(new SplunkMessageHandler(
+                projectId, accessToken, applicationContext, "Storm"));
+    }
 
-        Log.i(TAG, ">>>>>>>> Received <<<<<<<<");
-        Log.i(TAG, projectId + ": " + accessToken);
+    public static synchronized void TCPconnect(String splunkUrl,
+            int portNumber, Context applicationContext) {
 
-        Thread.setDefaultUncaughtExceptionHandler(
-                new SplunkMessageHandler(projectId, accessToken,
-                        applicationContext));
+        Thread.setDefaultUncaughtExceptionHandler(new SplunkMessageHandler(
+                splunkUrl, portNumber, applicationContext, "Storm"));
     }
 }

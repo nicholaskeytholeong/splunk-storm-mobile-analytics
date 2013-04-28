@@ -60,7 +60,7 @@ public class SplunkHTTPClient {
                         X509Certificate[] certs, String authType) {
                 }
             }
-    }; 
+    };
 
     private ArrayList<Object> getHTTPResponse(HttpsURLConnection connection) {
 
@@ -164,7 +164,7 @@ public class SplunkHTTPClient {
         }
         return paramString.toString();
     }
-    
+
     public synchronized void sendEvents(
             String splunkUrl, String username, String password,
             String eventInput) {
@@ -195,7 +195,7 @@ public class SplunkHTTPClient {
         creds.put("username", username);
         creds.put("password", password);
         String userCreds = constructGetParams(creds); 
-        
+
         int respCode = -1;
         String respSplunk = null;
 

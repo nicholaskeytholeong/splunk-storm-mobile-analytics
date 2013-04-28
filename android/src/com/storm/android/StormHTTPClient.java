@@ -33,8 +33,8 @@ public class StormHTTPClient {
         //constructs url GET params
         StringBuilder urlGetParams = new StringBuilder();
         HashMap<String, String> urlParams = new HashMap<String, String>();
-        urlParams.put("index", projectId);
         urlParams.put("sourcetype", "app_message");
+        urlParams.put("index", projectId);
 
         ArrayList<String> listOfParams = new ArrayList<String>();
         for (String param : urlParams.keySet()) {
