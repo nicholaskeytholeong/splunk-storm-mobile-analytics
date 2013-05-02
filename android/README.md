@@ -9,6 +9,14 @@ protected void onCreate(Bundle savedInstanceState) {
     Storm.connect("STORM_PROJECT_KEY", "STORM_ACCESS_TOKEN", getApplicationContext());
 ```
 
+- You may also send events through TCP
+
+```java
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Storm.TCPconnect("STORM_RECEIVING_URL", PORT_NUMBER, getApplicationContext());
+```
+
 - Add access internet permission between the **"manifest"** element in the AndroidManifest.xml
 
 ```xml
