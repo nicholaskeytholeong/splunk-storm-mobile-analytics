@@ -13,13 +13,13 @@ public class Storm {
             String accessToken, Context applicationContext) {
 
         Thread.setDefaultUncaughtExceptionHandler(new SplunkMessageHandler(
-                projectId, accessToken, applicationContext, "Storm"));
+                projectId, accessToken, applicationContext));
     }
 
     public static synchronized void TCPconnect(String splunkUrl,
             int portNumber, Context applicationContext) {
 
         Thread.setDefaultUncaughtExceptionHandler(new SplunkMessageHandler(
-                splunkUrl, portNumber, applicationContext, "Storm"));
+                splunkUrl, portNumber, applicationContext));
     }
 }

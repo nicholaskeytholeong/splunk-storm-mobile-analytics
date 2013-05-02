@@ -13,12 +13,11 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.storm.android.StormHTTPClient;
-import com.storm.android.StormTCPClient;
-
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+
+import com.storm.android.StormHTTPClient;
 
 /**
  * @author Nicholas Key (Splunk)
@@ -32,31 +31,27 @@ public class SplunkMessageHandler implements UncaughtExceptionHandler {
     private String password = null;
     private String projectId = null;
     private String accessToken = null;
-    private String productName = null;
     private int portNumber = -1;
     private JSONObject stackTraceJson = new JSONObject();
     private static final String TAG = "UNCAUGHT_EXCEPTION_HANLDER";
 
     public SplunkMessageHandler(String splunkUrl, String username,
-            String password, Context applicationContext, String productName) {
+            String password, Context applicationContext) {
         this.splunkUrl = splunkUrl;
         this.username = username;
         this.password = password;
-        this.productName = productName;
     }
 
     public SplunkMessageHandler(String projectId, String accessToken,
-            Context applicationContext, String productName) {
+            Context applicationContext) {
         this.projectId = projectId;
         this.accessToken = accessToken;
-        this.productName = productName;
     }
 
     public SplunkMessageHandler(String splunkUrl, int portNumber,
-            Context applicationContext, String productName) {
+            Context applicationContext) {
         this.splunkUrl = splunkUrl;
         this.portNumber = portNumber;
-        this.productName = productName;
     }
 
     // defines the default behavior for any uncaught exceptions
@@ -102,14 +97,10 @@ public class SplunkMessageHandler implements UncaughtExceptionHandler {
                     if (username != null && password != null) {
                         new SplunkHTTPClient().sendEvents(splunkUrl, username,
                                 password, stackTraceJson.toString());
-                    } else if (portNumber > -1 && 
-                            productName.equals("Splunk")) {
+                    } else if (portNumber > -1) {
                         new SplunkTCPClient().sendEvents(splunkUrl, portNumber,
                                 stackTraceJson.toString());
-                    } else {
-                        new StormTCPClient().sendEvents(splunkUrl, portNumber,
-                                stackTraceJson.toString());
-                    }
+                    } 
                 } else {
                     new StormHTTPClient().sendEvents(projectId, accessToken,
                             stackTraceJson.toString());

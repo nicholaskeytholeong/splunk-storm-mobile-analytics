@@ -25,7 +25,7 @@ public class Splunk {
 
         Thread.setDefaultUncaughtExceptionHandler(
                 new SplunkMessageHandler(splunkUrl, username, password,
-                        applicationContext, "Splunk"));
+                        applicationContext));
     }
 
     public static synchronized void TCPconnect(
@@ -34,7 +34,7 @@ public class Splunk {
         Log.i(TAG, splunkUrl + ":" + portNumber);
 
         Thread.setDefaultUncaughtExceptionHandler(
-                new SplunkMessageHandler(splunkUrl, portNumber, 
-                        applicationContext, "Splunk"));
+                new SplunkMessageHandler(splunkUrl, portNumber,
+                        applicationContext));
     }
 }
