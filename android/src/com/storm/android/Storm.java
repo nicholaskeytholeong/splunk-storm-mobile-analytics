@@ -2,7 +2,7 @@ package com.storm.android;
 
 import android.content.Context;
 
-import com.splunk.android.SplunkMessageHandler;
+import com.splunk.utils.SplunkMessageHandler;
 
 /**
  * @author Nicholas Key (Splunk)

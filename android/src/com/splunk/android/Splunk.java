@@ -3,6 +3,8 @@ package com.splunk.android;
 import android.content.Context;
 import android.util.Log;
 
+import com.splunk.utils.SplunkMessageHandler;
+
 /**
  * @author Nicholas Key (Splunk)
  */
