@@ -1,4 +1,4 @@
-#Referencing this logging library into Android app
+#Using this logging library with Android app
 - Create a Splunk Storm account
 - Move splunkstormmobileanalytics.jar into the libs directory of your Android mobile app project
 - Connect to SplunkStorm in the main activity of the app
