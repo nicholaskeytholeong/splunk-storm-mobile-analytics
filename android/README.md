@@ -1,4 +1,4 @@
-#Steps to reference this logging library into Android app
+#Using this logging library with Android app
 - Create a Splunk Storm account
 - Move splunkstormmobileanalytics.jar into the libs directory of your Android mobile app project
 - Connect to SplunkStorm in the main activity of the app
@@ -34,3 +34,12 @@ protected void onCreate(Bundle savedInstanceState) {
 - You are set
 - Go to the Storm dashboard to perform crash analytics!
 - Thank you for trying this logging library!
+
+#LIABILITY 
+Splunk does not assume any liability upon the usage of this library. Use it as is.
+
+#SUPPORT
+This is not a Splunk officially supported library.
+
+#License
+The Mobile Analytics with Splunk Storm is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
