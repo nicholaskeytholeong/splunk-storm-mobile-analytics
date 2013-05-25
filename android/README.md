@@ -1,7 +1,7 @@
 #Using this logging library with Android app
 - Create a Splunk Storm account
 - Move splunkstormmobileanalytics.jar into the libs directory of your Android mobile app project
-- Connect to SplunkStorm in the main activity of the app
+- Connect to SplunkStorm in the main activity of the app to send events via API
 
 ```java
 protected void onCreate(Bundle savedInstanceState) {
