@@ -1,10 +1,9 @@
 #Using this logging library with iOS app
 - Create a Splunk Storm account
 - Download splunkmobileanalytics.zip
-- Unzip it and drag the "splunkmobileanalytics" folder into the project
-- Select "Relative to Project" at "Reference Type"
+- Unzip it and drag the `splunkmobileanalytics` folder into the project
+- Select `Relative to Project` at `Reference Type`
 - Then click "Add"
-
 - In the AppDelegate interface file (AppDelegate.h), import Storm.h, like such:
 
 ```objective-c
