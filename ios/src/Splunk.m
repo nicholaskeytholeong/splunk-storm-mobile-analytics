@@ -22,13 +22,12 @@
  */
 
 #import "Splunk.h"
-
+#import "Storm.h"
 
 @implementation Splunk
 
-+ (void) splunkTCPReceivingUrl:(NSString *)receivingUrl splunkTCPReceivingPortNumber:(NSInteger)portNumber {
-	NSLog(@"%@", receivingUrl);
-	NSLog(@"%@", portNumber);
++ (void) TCPHost:(NSString *)receivingURL TCPPortNum:(NSInteger)TCPPortNumber {
+	[Storm TCPHost:receivingURL TCPPortNum:TCPPortNumber];
 }	
 
 @end

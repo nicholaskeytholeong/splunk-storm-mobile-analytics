@@ -1,5 +1,5 @@
 //
-//  Storm.h
+//  MessageHandler.m
 //  SplunkStormMobileAnalytics
 //
 //  Created by Nicholas Key (nicholas@splunk.com)
@@ -21,14 +21,9 @@
  * under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "MessageHandler.h"
 
 
-@interface Storm : NSObject {
-	
-}
-
-+ (void) stormAPIProjectId:(NSString *)projectId stormAPIAccessToken:(NSString *)accessToken;
-+ (void) TCPHost:(NSString *)receivingURL TCPPortNum:(NSInteger)TCPPortNumber;
+@implementation MessageHandler
 
 @end

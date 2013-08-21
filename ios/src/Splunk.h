@@ -25,9 +25,9 @@
 
 
 @interface Splunk : NSObject {
-
+	
 }
 
-+ (void) splunkTCPReceivingUrl:(NSString *)receivingUrl splunkTCPReceivingPortNumber:(NSInteger)portNumber;
++ (void) TCPHost:(NSString *)receivingURL TCPPortNum:(NSInteger)TCPPortNumber;
 
 @end

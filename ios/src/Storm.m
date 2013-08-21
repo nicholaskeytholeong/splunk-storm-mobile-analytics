@@ -21,17 +21,20 @@
  * under the License.
  */
 
+#import <UIKit/UIKit.h>
+
 #import "Storm.h"
+#import "TCPClient.h"
 
 
-static NSString *projectId;
-static NSString *accessToken;
-
-
+static NSString *projectId = @"";
+static NSString *accessToken = @"";
+static NSString *receivingURL = @"";
+static NSInteger TCPPortNumber = 0;
 
 
 @interface CrashMessage : NSOperation {
-
+	
 }
 @end
 
@@ -80,7 +83,7 @@ static NSString *accessToken;
 			[plistElement appendFormat:@"%@=\"%@\"\n", dictKey, [inputplistInfo objectForKey:dictKey]];
 		} else if ([[inputplistInfo objectForKey:dictKey] isKindOfClass:[NSArray class]]) {
 			[plistElement appendFormat:@"%@", [self flattenArrayKeyName:dictKey 
-													flattenArrayInput:[inputplistInfo objectForKey:dictKey]]];
+													  flattenArrayInput:[inputplistInfo objectForKey:dictKey]]];
 		} else if ([[inputplistInfo objectForKey:dictKey] isKindOfClass:[NSDictionary class]]) {
 			
 		} else {
@@ -144,7 +147,7 @@ static NSString *accessToken;
 	NSData *urlData=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
 	NSString *data=[[NSString alloc]initWithData:urlData encoding:NSUTF8StringEncoding];
 	NSLog(@"%@",data);
-
+	
 }
 
 @end
@@ -153,8 +156,6 @@ static NSString *accessToken;
 
 
 void UncaughtExceptionHandler(NSException *exception) {
-	
-	NSLog(@"received projectId:[%@] accessToken:[%@]", projectId, accessToken);
 	
 	CrashMessage *crashMsg = [[[CrashMessage alloc] init] autorelease];
 	NSMutableString *crashLog = [[[NSMutableString alloc] initWithString:@"sourcetype=\"iphone_crash_log\"\n"] autorelease];
@@ -166,12 +167,22 @@ void UncaughtExceptionHandler(NSException *exception) {
 																		  flattenArrayInput:[exception callStackReturnAddresses]]];
 	
 	NSDictionary *plistInfo = [[NSBundle mainBundle] infoDictionary];
-	[crashLog appendFormat:@"%@", [crashMsg flattenpList:plistInfo]];
-	[crashMsg stormAPI:crashLog];
-	
+	[crashLog appendFormat:@"%@\n", [crashMsg flattenpList:plistInfo]];
+		
+	if (([projectId length]) && ([accessToken length])) {
+		NSLog(@"Using API input");
+		NSLog(@"received projectId:[%@] accessToken:[%@]", projectId, accessToken);
+		[crashMsg stormAPI:crashLog];
+	} else if (([receivingURL length]) && (TCPPortNumber > 0)) {
+		//NSLog(@"Sending data with TCP input");
+		//NSLog(@"received receivingURL:[%@] TCPPortNumber:[%d]", receivingURL, TCPPortNumber);
+		
+		TCPClient *splunkTCPclient = [[TCPClient alloc] init];
+		[splunkTCPclient TCPClientSetup:receivingURL TCPPort:TCPPortNumber writeOut:crashLog];
+		
+		//NSLog(@"Stack trace for TCP:\n%@", crashLog);
+	} 
 }
-
-
 
 
 @interface StormProject : NSObject {
@@ -179,6 +190,7 @@ void UncaughtExceptionHandler(NSException *exception) {
 }
 
 - (id) initStormProjID:(NSString *)projId initStormAccessToken:(NSString *)accToken;
+- (id) initStormTCPRecvUrl:(NSString *)rcvUrl initStormTCPPrtNum:(NSInteger)prtNumber;
 @end
 
 @implementation StormProject
@@ -193,11 +205,22 @@ void UncaughtExceptionHandler(NSException *exception) {
     return self;
 }
 
+- (id) initStormTCPRecvUrl:(NSString *)rcvUrl initStormTCPPrtNum:(NSInteger)prtNumber {
+	self = [super init];
+    if (self) {
+		receivingURL = rcvUrl;
+		TCPPortNumber = prtNumber;
+    }
+	NSSetUncaughtExceptionHandler (&UncaughtExceptionHandler);
+    return self;
+}
+
 - (void) dealloc {
     [super dealloc];
 }
 
 @end
+
 
 @implementation Storm
 
@@ -205,9 +228,8 @@ void UncaughtExceptionHandler(NSException *exception) {
 	[[StormProject alloc] initStormProjID:projectId initStormAccessToken:accessToken];
 }
 
-+ (void) stormTCPReceivingUrl:(NSString *)receivingUrl stormTCPPortNumber:(NSInteger)portNumber {
-	NSLog(@"%@", receivingUrl);
-	NSLog(@"%@", portNumber);
++ (void) TCPHost:(NSString *)receivingURL TCPPortNum:(NSInteger)TCPPortNumber {
+	[[StormProject alloc] initStormTCPRecvUrl:receivingURL initStormTCPPrtNum:TCPPortNumber];
 }
 
 @end

@@ -1,5 +1,5 @@
 //
-//  Storm.h
+//  TCPClient.h
 //  SplunkStormMobileAnalytics
 //
 //  Created by Nicholas Key (nicholas@splunk.com)
@@ -21,14 +21,13 @@
  * under the License.
  */
 
+
 #import <Foundation/Foundation.h>
 
-
-@interface Storm : NSObject {
+@interface TCPClient : NSObject <NSStreamDelegate> {
 	
 }
 
-+ (void) stormAPIProjectId:(NSString *)projectId stormAPIAccessToken:(NSString *)accessToken;
-+ (void) TCPHost:(NSString *)receivingURL TCPPortNum:(NSInteger)TCPPortNumber;
+- (void)TCPClientSetup:(NSString *)host TCPPort:(NSInteger)port writeOut:(NSString *)stackMsg;
 
 @end
