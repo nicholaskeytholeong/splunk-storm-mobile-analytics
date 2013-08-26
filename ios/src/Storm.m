@@ -26,6 +26,11 @@
 #import "Storm.h"
 #import "TCPClient.h"
 
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 static NSString *projectId = @"";
 static NSString *accessToken = @"";
@@ -131,7 +136,7 @@ static NSInteger TCPPortNumber = 0;
 - (void) stormAPI:(NSString *)crashLog {
 	
 	NSLog(@"\n%@\n", crashLog);
-	NSString *requestUrl = [NSString stringWithFormat:@"https://api.splunkstorm.com/1/inputs/http?index=%@&sourcetype=iphone_crash_log", projectId];
+	NSString *requestUrl = [NSString stringWithFormat:@"https://api.splunkstorm.com/1/inputs/http?index=%@&sourcetype=ios_crash_log", projectId];
 	NSString *token = [NSString stringWithFormat:@"x:%@", accessToken];
 	NSURL *url=[NSURL URLWithString:requestUrl];
 	
@@ -150,6 +155,143 @@ static NSInteger TCPPortNumber = 0;
 	
 }
 
+- (NSString *) getDeviceInfo {
+			
+	NSMutableString *device_info_str = [[[NSMutableString alloc] init] autorelease];
+	
+	NSUInteger  an_Integer;
+    NSArray * ipItemsArray;
+    NSString *externalIP;
+	
+    NSURL *iPURL = [NSURL URLWithString:@"http://www.dyndns.org/cgi-bin/check_ip.cgi"];
+	
+    if (iPURL) {
+        NSError *error = nil;
+        NSString *theIpHtml = [NSString stringWithContentsOfURL:iPURL encoding:NSUTF8StringEncoding error:&error];
+        if (!error) {
+            NSScanner *theScanner;
+            NSString *text = nil;
+			
+            theScanner = [NSScanner scannerWithString:theIpHtml];
+			
+            while ([theScanner isAtEnd] == NO) {
+				
+                // find start of tag
+                [theScanner scanUpToString:@"<" intoString:NULL] ;
+				
+                // find end of tag
+                [theScanner scanUpToString:@">" intoString:&text] ;
+				
+                // replace the found tag with a space
+                //(you can filter multi-spaces out later if you wish)
+                theIpHtml = [theIpHtml stringByReplacingOccurrencesOfString:
+                             [ NSString stringWithFormat:@"%@>", text]
+                                                                 withString:@" "] ;
+                ipItemsArray =[theIpHtml  componentsSeparatedByString:@" "];
+                an_Integer=[ipItemsArray indexOfObject:@"Address:"];
+                externalIP =[ipItemsArray objectAtIndex:  ++an_Integer];
+            }
+			[device_info_str appendFormat:@"externalIP=\"%@\"\n", externalIP];
+        } else {
+            NSLog(@"%d, %@", [error code], [error localizedDescription]);
+        }
+    }
+	
+	
+	
+	
+	NSString *address = @"error";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+	
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0)
+    {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL)
+        {
+            if(temp_addr->ifa_addr->sa_family == AF_INET)
+            {
+				// Get NSString from C String
+				address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+            }
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+	
+    // Free memory
+    freeifaddrs(interfaces);
+	[device_info_str appendFormat:@"localIP=\"%@\"\n", address];
+	
+	
+	
+	
+	NSDictionary *sys_ctl_name = [NSDictionary dictionaryWithObjectsAndKeys:
+								  @"hw.model", @"model", 
+								  @"hw.machine", @"machine",
+								  nil];
+	
+	for (NSString *dictKey in [sys_ctl_name allKeys]) {
+		
+		size_t size;
+		sysctlbyname([[sys_ctl_name objectForKey:dictKey] cStringUsingEncoding:NSUTF8StringEncoding], NULL, &size, NULL, 0);
+		char *machine = malloc(size);
+		sysctlbyname([[sys_ctl_name objectForKey:dictKey] cStringUsingEncoding:NSUTF8StringEncoding], machine, &size, NULL, 0);
+		NSString *machine_model = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+		free(machine);
+		[device_info_str appendFormat:@"%@=\"%@\"\n", dictKey, machine_model];
+	}
+
+	
+	[[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+	
+	[device_info_str appendFormat:@"batteryLevel=\"%.f\"\n", [[UIDevice currentDevice] batteryLevel] * 100];
+	
+	NSArray *batteryStatus = [NSArray arrayWithObjects: 
+							  @"Unknown", 
+							  @"Unplugged/Discharging)", 
+							  @"Charging", 
+							  @"Fully charged",
+							  nil];
+	
+	if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateUnknown) {
+		[device_info_str appendFormat:@"batteryStatus=\"%@\"\n", [batteryStatus objectAtIndex:0]];
+	} else {
+		[device_info_str appendFormat:@"batteryStatus=\"%@\"\n", [batteryStatus objectAtIndex:[[UIDevice currentDevice] batteryState]]];
+	}
+	
+	[device_info_str appendFormat:@"deviceName=\"%@\"\n", [[UIDevice currentDevice] name]];
+	[device_info_str appendFormat:@"deviceSystemName=\"%@\"\n", [[UIDevice currentDevice] systemName]];
+	[device_info_str appendFormat:@"deviceSystemVersion=\"%@\"\n", [[UIDevice currentDevice] systemVersion]];
+	[device_info_str appendFormat:@"deviceModel=\"%@\"\n", [[UIDevice currentDevice] model]];
+	[device_info_str appendFormat:@"deviceLocalizedModel=\"%@\"\n", [[UIDevice currentDevice] localizedModel]];
+	
+	NSArray *deviceOrientation = [NSArray arrayWithObjects: 
+								  @"Unknown", 
+								  @"Portrait", 
+								  @"PortraitUpsideDown", 
+								  @"LandscapeLeft",
+								  @"LandscapeRight", 
+								  @"FaceUp",
+								  @"FaceDown",
+								  nil];
+	
+	if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationUnknown) {
+		[device_info_str appendFormat:@"deviceOrientation=\"%@\"\n", [deviceOrientation objectAtIndex:0]];
+	} else {
+		[device_info_str appendFormat:@"deviceOrientation=\"%@\"\n", [deviceOrientation objectAtIndex:[[UIDevice currentDevice] orientation]]];
+	}
+	
+	[[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
+	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+		
+	return device_info_str;
+}
+
 @end
 
 
@@ -158,8 +300,9 @@ static NSInteger TCPPortNumber = 0;
 void UncaughtExceptionHandler(NSException *exception) {
 	
 	CrashMessage *crashMsg = [[[CrashMessage alloc] init] autorelease];
-	NSMutableString *crashLog = [[[NSMutableString alloc] initWithString:@"sourcetype=\"iphone_crash_log\"\n"] autorelease];
+	NSMutableString *crashLog = [[[NSMutableString alloc] initWithString:@"sourcetype=\"ios_crash_log\"\n"] autorelease];
 	
+	[crashLog appendFormat:@"%@", [crashMsg getDeviceInfo]];
 	[crashLog appendFormat:@"exceptionReason=\"%@\"\n", [exception reason]];
 	[crashLog appendFormat:@"exceptionName=\"%@\"\n", [exception name]];
 	[crashLog appendFormat:@"stackSymbols=\"%@\"\n", [crashMsg flattenStackSymbols:[exception callStackSymbols]]];
@@ -220,6 +363,7 @@ void UncaughtExceptionHandler(NSException *exception) {
 }
 
 @end
+
 
 
 @implementation Storm
