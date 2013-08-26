@@ -51,7 +51,7 @@ public class StormHTTPClient {
         //constructs url GET params
         StringBuilder urlGetParams = new StringBuilder();
         HashMap<String, String> urlParams = new HashMap<String, String>();
-        urlParams.put("sourcetype", "app_message");
+        urlParams.put("sourcetype", "android_crash_log");
         urlParams.put("index", projectId);
 
         ArrayList<String> listOfParams = new ArrayList<String>();

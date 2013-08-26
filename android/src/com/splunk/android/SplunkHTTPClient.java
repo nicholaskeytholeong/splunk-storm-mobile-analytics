@@ -247,7 +247,7 @@ public class SplunkHTTPClient {
 
         HashMap<String, String> urlParams = new HashMap<String, String>();
         //sends events to 'main' index by default
-        urlParams.put("sourcetype", "app_message");
+        urlParams.put("sourcetype", "android_crash_log");
         String urlGetParams = constructGetParams(urlParams); 
 
         String splunkReceiversEndpoint = splunkUrl.concat(

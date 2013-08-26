@@ -26,9 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.Build;
 
@@ -53,9 +50,9 @@ public class MessageHandler implements UncaughtExceptionHandler {
     private String projectId = null;
     private String accessToken = null;
     private int portNumber = -1;
-    private JSONObject stackTraceJson = new JSONObject();
 
-    // private static final String TAG = "UNCAUGHT_EXCEPTION_HANLDER";
+    private StringBuffer stackTraceStr = new StringBuffer();
+
 
     public MessageHandler(String splunkUrl, String username,
             String password, Context applicationContext) {
@@ -88,38 +85,33 @@ public class MessageHandler implements UncaughtExceptionHandler {
                 try {
                     if ((!field.getName().equals("TIME"))
                             && !field.getName().equals("SERIAL")) {
-                        stackTraceJson.put(field.getName(), field.get(null)
-                                .toString());
+                        stackTraceStr.append(String.format("%s=\"%s\"\n", field.getName(), field.get(null)
+                                .toString()));
                     }
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                } 
             }
         }
 
-        try {
-            String strace = stackTrace.toString();
-            StackTraceElement ste = ex.getStackTrace()[0];
 
-            if (!stackTraceJson.has("sourcetype")) {
-                stackTraceJson.put("SOURCETYPE", "app_message");
-            }
+        String strace = stackTrace.toString();
+        StackTraceElement ste = ex.getStackTrace()[0];
 
-            String origin = String
-                    .format("%s.%s(%s:%s)", ste.getClassName(),
-                            ste.getMethodName(), ste.getFileName(),
-                            ste.getLineNumber());
-            stackTraceJson.put("ORIGIN_OF_FAILURE", origin);
-            stackTraceJson.put("EXCEPTION_CLASS",
-                    strace.substring(0, strace.indexOf(LINE_SEPARATOR)));
-            stackTraceJson.put("UNCAUGHT_EXCEPTION_STACKTRACE", strace);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if ((stackTraceStr.indexOf("sourcetype") < 0) || (stackTraceStr.indexOf("SOURCETYPE") < 0)) {
+            stackTraceStr.append("SOURCETYPE=\"android_crash_log\"\n");
         }
+        
+        String origin = String
+                .format("%s.%s(%s:%s)", ste.getClassName(),
+                        ste.getMethodName(), ste.getFileName(),
+                        ste.getLineNumber());
+
+        stackTraceStr.append(String.format("ORIGIN_OF_FAILURE=\"%s\"\n", origin));
+        stackTraceStr.append(String.format("EXCEPTION_CLASS=\"%s\"\n", strace.substring(0, strace.indexOf(LINE_SEPARATOR))));
+        stackTraceStr.append(String.format("UNCAUGHT_EXCEPTION_STACKTRACE=\"%s\"\n", strace));        
 
         // calls respective sendEvents method with stacktrace msg
         ExecutorService es = Executors.newSingleThreadExecutor();
@@ -128,14 +120,14 @@ public class MessageHandler implements UncaughtExceptionHandler {
                 if (splunkUrl != null) {
                     if (username != null && password != null) {
                         new SplunkHTTPClient().sendEvents(splunkUrl, username,
-                                password, stackTraceJson.toString());
+                                password, stackTraceStr.toString());
                     } else if (portNumber > -1) {
                         new SplunkTCPClient().sendEvents(splunkUrl, portNumber,
-                                stackTraceJson.toString());
+                                stackTraceStr.toString());
                     }
                 } else {
                     new StormHTTPClient().sendEvents(projectId, accessToken,
-                            stackTraceJson.toString());
+                            stackTraceStr.toString());
                 }
             }
         });
