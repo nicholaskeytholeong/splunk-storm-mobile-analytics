@@ -1,4 +1,4 @@
-#storm-mobile-analytics
+#splunk-mobile-analytics
 Clone the repository to local disk:
 
     $ git clone git@github.com:nicholaskeytholeong/splunk-storm-mobile-analytics.git <working_dir>
@@ -12,4 +12,4 @@ Splunk does not assume any liability upon the usage of this library. Use it as i
 This is not a Splunk officially supported library.
 
 #License
-The Mobile Analytics with Splunk Storm is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
+The Mobile Analytics with Splunk is licensed under the Apache License 2.0. Details can be found in the LICENSE file.
