@@ -31,6 +31,8 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#import <mach/mach.h>
+#import <mach/mach_host.h>
 
 static NSString *projectId = @"";
 static NSString *accessToken = @"";
@@ -155,6 +157,71 @@ static NSInteger TCPPortNumber = 0;
 	
 }
 
+// http://stackoverflow.com/questions/5712527/how-to-detect-total-available-free-disk-space-on-the-iphone-ipad-device
+- (NSString *)getDiskSpaceInfo {
+	
+	NSMutableString *disk_space_info = [[[NSMutableString alloc] init] autorelease];
+	
+	uint64_t totalSpace = 0;
+    uint64_t totalFreeSpace = 0;
+	
+    NSError *error = nil;  
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);  
+    NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];  
+	
+	double unit = 1024 * 1024;
+	
+	if (dictionary) { 
+        NSNumber *fileSystemSizeInBytes = [dictionary objectForKey: NSFileSystemSize];  
+        NSNumber *freeFileSystemSizeInBytes = [dictionary objectForKey:NSFileSystemFreeSize];
+		
+        totalSpace = [fileSystemSizeInBytes unsignedLongLongValue];
+        totalFreeSpace = [freeFileSystemSizeInBytes unsignedLongLongValue];
+
+		[disk_space_info appendFormat:@"totalDiskSpace=\"%.2f MB\"\n", totalSpace/unit];
+		[disk_space_info appendFormat:@"totalFreeDiskSpace=\"%.2f MB\"", totalFreeSpace/unit];
+		
+	} else {
+		[disk_space_info appendFormat:@"availableDiskSpace=\"Fail to get disk space stats\"\n"];
+	}
+	return disk_space_info;
+}
+
+
+// http://gamesfromwithin.com/whered-that-memory-go
+- (NSString *)getMemoryInfo {
+	
+	NSMutableString *memory_info = [[[NSMutableString alloc] init] autorelease];
+	
+	mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
+	vm_statistics_data_t vmstats;
+	kern_return_t kernReturn = host_statistics(mach_host_self (), HOST_VM_INFO, (host_info_t) &vmstats, &infoCount);
+	
+	if (kernReturn == KERN_SUCCESS) {
+		const int total = vmstats.wire_count + vmstats.active_count + vmstats.inactive_count + vmstats.free_count;
+		const int available = vmstats.free_count;
+		const int wired = vmstats.wire_count;
+		const int active = vmstats.active_count;
+		const int inactive = vmstats.inactive_count;
+		const int pageins = vmstats.pageins;
+		const int pageouts = vmstats.pageouts;
+		
+		double unit = 1024 * 1024;
+		
+		[memory_info appendFormat:@"totalMemory=\"%.2f MB\"\n", (double)(total * vm_page_size/unit)];
+		[memory_info appendFormat:@"availableMemory=\"%.2f MB\"\n", (double)(available * vm_page_size/unit)];
+		[memory_info appendFormat:@"wiredMemory=\"%.2f MB\"\n", (double)(wired * vm_page_size/unit)];
+		[memory_info appendFormat:@"activeMemory=\"%.2f MB\"\n", (double)(active * vm_page_size/unit)];
+		[memory_info appendFormat:@"inactiveMemory=\"%.2f MB\"\n", (double)(inactive * vm_page_size/unit)];
+		[memory_info appendFormat:@"pageIn=\"%d\"\n", pageins];
+		[memory_info appendFormat:@"pageOut=\"%d\"", pageouts];
+				
+	} else {
+		[memory_info appendFormat:@"availableMemory=\"Fail to get memory stats\"\n"];
+	}
+	return memory_info;
+}
+
 - (NSString *) getDeviceInfo {
 			
 	NSMutableString *device_info_str = [[[NSMutableString alloc] init] autorelease];
@@ -246,6 +313,7 @@ static NSInteger TCPPortNumber = 0;
 	}
 
 	
+	
 	[[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
 	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	
@@ -285,6 +353,9 @@ static NSInteger TCPPortNumber = 0;
 	} else {
 		[device_info_str appendFormat:@"deviceOrientation=\"%@\"\n", [deviceOrientation objectAtIndex:[[UIDevice currentDevice] orientation]]];
 	}
+	
+	[device_info_str appendFormat:@"%@\n", 	[self getDiskSpaceInfo]];
+	[device_info_str appendFormat:@"%@\n", [self getMemoryInfo]];
 	
 	[[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
 	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
