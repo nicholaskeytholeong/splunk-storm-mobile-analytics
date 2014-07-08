@@ -27,17 +27,20 @@ import com.splunk.utils.MessageHandler;
  */
 public class Storm {
 
-    public static synchronized void connect(String projectId,
-            String accessToken, Context applicationContext) {
+	public static synchronized void connect(String projectId, String accessToken, Context applicationContext) {
+
+		Thread.setDefaultUncaughtExceptionHandler(new MessageHandler(projectId, accessToken, applicationContext));
+	}
+
+	public static synchronized void connect(String projectId,
+            String accessToken, Context applicationContext, String splunkUrl) {
 
         Thread.setDefaultUncaughtExceptionHandler(new MessageHandler(
-                projectId, accessToken, applicationContext));
+                projectId, accessToken, applicationContext, splunkUrl));
     }
 
-    public static synchronized void TCPconnect(String splunkUrl,
-            int portNumber, Context applicationContext) {
+	public static synchronized void TCPconnect(String splunkUrl, int portNumber, Context applicationContext) {
 
-        Thread.setDefaultUncaughtExceptionHandler(new MessageHandler(
-                splunkUrl, portNumber, applicationContext));
-    }
+		Thread.setDefaultUncaughtExceptionHandler(new MessageHandler(splunkUrl, portNumber, applicationContext));
+	}
 }

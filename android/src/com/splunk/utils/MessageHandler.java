@@ -62,6 +62,13 @@ public class MessageHandler implements UncaughtExceptionHandler {
     }
 
     public MessageHandler(String projectId, String accessToken,
+            Context applicationContext, String splunkUrl) {
+        this.projectId = projectId;
+        this.accessToken = accessToken;
+        this.splunkUrl = splunkUrl;
+    }
+
+    public MessageHandler(String projectId, String accessToken,
             Context applicationContext) {
         this.projectId = projectId;
         this.accessToken = accessToken;
@@ -92,7 +99,7 @@ public class MessageHandler implements UncaughtExceptionHandler {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-                } 
+                }
             }
         }
 
@@ -103,7 +110,7 @@ public class MessageHandler implements UncaughtExceptionHandler {
         if ((stackTraceStr.indexOf("sourcetype") < 0) || (stackTraceStr.indexOf("SOURCETYPE") < 0)) {
             stackTraceStr.append("SOURCETYPE=\"android_crash_log\"\n");
         }
-        
+
         String origin = String
                 .format("%s.%s(%s:%s)", ste.getClassName(),
                         ste.getMethodName(), ste.getFileName(),
@@ -111,7 +118,7 @@ public class MessageHandler implements UncaughtExceptionHandler {
 
         stackTraceStr.append(String.format("ORIGIN_OF_FAILURE=\"%s\"\n", origin));
         stackTraceStr.append(String.format("EXCEPTION_CLASS=\"%s\"\n", strace.substring(0, strace.indexOf(LINE_SEPARATOR))));
-        stackTraceStr.append(String.format("UNCAUGHT_EXCEPTION_STACKTRACE=\"%s\"\n", strace));        
+        stackTraceStr.append(String.format("UNCAUGHT_EXCEPTION_STACKTRACE=\"%s\"\n", strace));
 
         // calls respective sendEvents method with stacktrace msg
         ExecutorService es = Executors.newSingleThreadExecutor();

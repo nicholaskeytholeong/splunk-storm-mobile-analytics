@@ -46,6 +46,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -99,7 +100,7 @@ public class SplunkHTTPClient {
                 is = connection.getInputStream();
             }
             br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            response = new StringBuilder(); 
+            response = new StringBuilder();
             if (br != null) {
                 while ((responseStr = br.readLine()) != null) {
                     response.append(responseStr);
@@ -188,9 +189,9 @@ public class SplunkHTTPClient {
             String eventInput) {
 
         /**
-         * TODO: 
-         * Need to implement a more secured mechanism. Disabling the trust 
-         * manager defeats some parts of SSL and allows vulnerability to 
+         * TODO:
+         * Need to implement a more secured mechanism. Disabling the trust
+         * manager defeats some parts of SSL and allows vulnerability to
          * man-in-the-middle attacks.
          */
 
@@ -212,7 +213,7 @@ public class SplunkHTTPClient {
         HashMap<String, String> creds = new HashMap<String, String>();
         creds.put("username", username);
         creds.put("password", password);
-        String userCreds = constructGetParams(creds); 
+        String userCreds = constructGetParams(creds);
 
         int respCode = -1;
         String respSplunk = null;
@@ -248,7 +249,7 @@ public class SplunkHTTPClient {
         HashMap<String, String> urlParams = new HashMap<String, String>();
         //sends events to 'main' index by default
         urlParams.put("sourcetype", "android_crash_log");
-        String urlGetParams = constructGetParams(urlParams); 
+        String urlGetParams = constructGetParams(urlParams);
 
         String splunkReceiversEndpoint = splunkUrl.concat(
                 "/services/receivers/simple").concat("?").concat(urlGetParams);
