@@ -48,6 +48,13 @@ public class SplunkMessageHandler implements UncaughtExceptionHandler {
         this.accessToken = accessToken;
     }
 
+    public SplunkMessageHandler(String projectId, String accessToken,
+            Context applicationContext, String splunkUrl) {
+        this.projectId = projectId;
+        this.accessToken = accessToken;
+        this.splunkUrl = splunkUrl;
+    }
+
     public SplunkMessageHandler(String splunkUrl, int portNumber,
             Context applicationContext) {
         this.splunkUrl = splunkUrl;
@@ -100,7 +107,7 @@ public class SplunkMessageHandler implements UncaughtExceptionHandler {
                     } else if (portNumber > -1) {
                         new SplunkTCPClient().sendEvents(splunkUrl, portNumber,
                                 stackTraceJson.toString());
-                    } 
+                    }
                 } else {
                     new StormHTTPClient().sendEvents(projectId, accessToken,
                             stackTraceJson.toString());
