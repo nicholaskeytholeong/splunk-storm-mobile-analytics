@@ -16,6 +16,9 @@
 
 package com.storm.android;
 
+import android.util.Base64;
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +34,6 @@ import java.util.Iterator;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import android.util.Base64;
-import android.util.Log;
-
 /**
  * @author Nicholas Key
  * @copyright Copyright 2013 Splunk, Inc.
@@ -46,20 +46,20 @@ public class StormHTTPClient {
     private static final String TAG = "StormHTTPCient";
 
     public synchronized void sendEvents(
-            String projectId, String accessToken, String eventInput) {
+            final String projectId, final String accessToken, final String eventInput) {
 
         //constructs url GET params
-        StringBuilder urlGetParams = new StringBuilder();
-        HashMap<String, String> urlParams = new HashMap<String, String>();
+        final StringBuilder urlGetParams = new StringBuilder();
+        final HashMap<String, String> urlParams = new HashMap<String, String>();
         urlParams.put("sourcetype", "android_crash_log");
         urlParams.put("index", projectId);
 
-        ArrayList<String> listOfParams = new ArrayList<String>();
-        for (String param : urlParams.keySet()) {
+        final ArrayList<String> listOfParams = new ArrayList<String>();
+        for (final String param : urlParams.keySet()) {
             listOfParams.add(param + "=" + urlParams.get(param));
         }
 
-        Iterator<String> entries = listOfParams.iterator();
+        final Iterator<String> entries = listOfParams.iterator();
         while (entries.hasNext()){
             urlGetParams.append(entries.next());
             if (entries.hasNext()){
@@ -68,14 +68,14 @@ public class StormHTTPClient {
         }
 
         //makes HTTP POST request
-        String stormInputUrl = "https://api.splunkstorm.com/1/inputs/http";
-        String userCreds = "x:" + accessToken;
+		String stormInputUrl = "https://api-kk8u-ar5g.data.splunkstorm.com/1/inputs/http";
+        final String userCreds = "x:" + accessToken;
 
         String basicAuth = null;
         try {
             basicAuth = "Basic " + Base64.encodeToString(
                     userCreds.getBytes("UTF-8"), Base64.NO_WRAP);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
@@ -112,13 +112,13 @@ public class StormHTTPClient {
             outputstreamwriter.write(eventInput);
             outputstreamwriter.flush();
 
-        } catch (ProtocolException e) {
+        } catch (final ProtocolException e) {
             e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -134,7 +134,7 @@ public class StormHTTPClient {
             br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String responseStr = null;
 
-            StringBuilder response = new StringBuilder(); 
+			final StringBuilder response = new StringBuilder();
             if (br != null) {
                 while ((responseStr = br.readLine()) != null) {
                     response.append(responseStr);
@@ -143,14 +143,16 @@ public class StormHTTPClient {
             }
             br.close();
 
-            Log.i(TAG, connection.getResponseCode() + ": " + 
+			Log.i(TAG,
+					connection.getResponseCode() + ": "
+							+
                     connection.getResponseMessage());
             Log.i(TAG, "Response message: " + response.toString());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         } finally {
             if(connection != null) {
-                connection.disconnect(); 
+				connection.disconnect();
             }
         }
         return;
